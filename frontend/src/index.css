@@ -1,0 +1,80 @@
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.auth-page {
+  min-height: 100vh;
+  padding: 30px;
+  background: linear-gradient(to right, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.posts-page {
+  min-height: 100vh;
+  padding: 30px;
+  background: #f2f2f2;
+}
+
+.auth-box,
+.form-box,
+.post {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 15px auto;
+  max-width: 500px;
+}
+
+.auth-box {
+  width: 350px;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+}
+
+button {
+  padding: 10px 15px;
+  border: 0;
+  border-radius: 5px;
+  background: #333;
+  color: white;
+}
+
+.posts-container {
+  max-width: 750px;
+  margin: auto;
+}
+
+.posts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.posts-header h1 {
+  font-size: 32px;
+}
+
+.logout-button {
+  background: #111;
+}
+
+.edit-button {
+  background: #555;
+}
+
+.delete-button {
+  background: #df0a0a;
+}

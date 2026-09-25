@@ -1,0 +1,105 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.auth-page,
+.posts-page {
+  min-height: 100vh;
+  padding: 30px;
+  background: linear-gradient(to right, #dff6ff, #f9e2f3);
+  background-size: 200% 200%;
+  animation: move 8s ease infinite;
+}
+
+@keyframes move {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-box,
+.form-box,
+.post {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px #0002;
+}
+
+.auth-box {
+  width: 350px;
+}
+
+.auth-box h1 {
+  text-align: center;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+textarea {
+  min-height: 100px;
+}
+
+button {
+  padding: 9px 14px;
+  margin: 5px;
+  border: 0;
+  border-radius: 5px;
+  background: #333;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+.auth-box button {
+  width: 100%;
+}
+
+.link {
+  color: #3498db;
+  cursor: pointer;
+}
+
+.posts-container {
+  max-width: 700px;
+  margin: auto;
+}
+
+.posts-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.edit-button {
+  background: #3498db;
+}
+
+.delete-button,
+.logout-button {
+  background: #e74c3c;
+}
