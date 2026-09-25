@@ -6,13 +6,27 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleLogin = async () => {
+
+    setLoading(true);
+
+    if (!email || !password) {
+      setMessage("Please enter email and password");
+
+      setTimeout(() => {
+        setMessage("");
+      }, 3000);
+
+      return;
+    }
+
     try {
       const response = await fetch(
-        "http://localhost:2000/api/auth/login",
+        "https://fullstack-blogpost-backend.onrender.com/api/auth/login",
         {
           method: "POST",
           headers: {
@@ -27,18 +41,37 @@ function Login() {
 
       const data = await response.json();
 
-      console.log("LOGIN:", data);
-
-      if (response.ok && data.token) {
-        localStorage.setItem("token", data.token);
-
-        navigate("/posts");
-      } else {
+      if (!response.ok) {
         setMessage(data.message || "Login failed");
+
+        setTimeout(() => {
+          setMessage("");
+        }, 3000);
+        return;
       }
+
+      if (!data.token) {
+        setMessage("Login failed");
+
+        setTimeout(() => {
+          setMessage("");
+        }, 3000);
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+
+      navigate("/posts");
     } catch (error) {
       console.error("Login error:", error);
-      setMessage("Login failed");
+
+      setMessage("Unable to connect to server");
+
+      setTimeout(() => {
+        setMessage("");
+      }, 3000);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,8 +94,8 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button onClick={handleLogin}>
-          Login
+        <button onClick={handleLogin} disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
         </button>
 
         {message && <p>{message}</p>}

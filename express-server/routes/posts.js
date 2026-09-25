@@ -128,6 +128,8 @@ router.delete("/:id", auth, async (req, res) => {
   }
 });
 
+module.exports = router;
+
 //POST      /api/posts      - create a post
 //GET       /api/posts      - get your posts
 
@@ -135,4 +137,4 @@ router.delete("/:id", auth, async (req, res) => {
 //PUT       /api/posts/:id   - update
 //DELETE    /api/posts/:id   - delete
 
-module.exports = router;
+

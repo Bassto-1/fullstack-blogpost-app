@@ -12,17 +12,22 @@ function Register() {
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
-if (!name || !email || !password) 
-  { setMessage("Please fill in all fields");
-     return;
-     } 
-     setLoading(true); 
-     setMessage("");
+    if (!name || !email || !password) {
+      setMessage("Please fill in all fields");
+
+      setTimeout(() => {
+        setMessage("");
+      }, 3000);
+
+      return;
+    }
+    setLoading(true);
+    setMessage("");
 
 
     try {
       const response = await fetch(
-        "http://localhost:2000/api/auth/register",
+        "https://fullstack-blogpost-backend.onrender.com/api/auth/register",
         {
           method: "POST",
           headers: {
@@ -38,20 +43,30 @@ if (!name || !email || !password)
 
       const data = await response.json();
 
-      setMessage(data.message || "Registration completed");
+      if (!response.ok) {
+        setMessage(data.message || "Registration failed");
 
-  if (!response.ok) { setMessage(data.message || "Registration failed");
- return;
- }
-  setMessage("Registration successful"); setTimeout(() => { navigate("/login"); }, 1000);
-      
-  } catch (error) { console.error(error); setMessage("Unable to connect to server");
-    
-   } finally { setLoading(false); } };
+        setTimeout(() => {
+          setMessage("");
+        }, 3000);
+
+        return;
+      }
+      setMessage("Registration successful");
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+
+    } catch (error) {
+      console.error(error); setMessage("Unable to connect to server");
+
+    } finally { setLoading(false); }
+  };
 
   return (
     <div className="auth-page">
-    <div className="auth-box">
+      <div className="auth-box">
         <h1>Create Account</h1>
 
         <input
@@ -75,10 +90,10 @@ if (!name || !email || !password)
           onChange={(e) => setPassword(e.target.value)}
         />
 
-       <button onClick={handleRegister} disabled={loading}>
-         {loading ? "Registering..." : "Register"} 
+        <button onClick={handleRegister} disabled={loading}>
+          {loading ? "Registering..." : "Register"}
 
-       </button>
+        </button>
 
         {message && <p>{message}</p>}
 

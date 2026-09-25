@@ -9,6 +9,10 @@ function Posts() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   // LOGOUT
   const handleLogout = () => {
@@ -32,46 +36,92 @@ function Posts() {
         Authorization: `Bearer ${token}`,
       },
     })
-      .then((response) => response.json())
-      .then((data) => {
+      .then((response) =>
+        response.json().then((data) => ({ response, data }))
+      )
+      .then(({ response, data }) => {
         console.log("POSTS:", data);
 
-        if (data.posts) {
+        if (response.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login");
+          return;
+        }
+
+        if (response.ok) {
           setPosts(data.posts);
+          setLoading(false);
         } else {
-          console.log("Failed to get posts");
-          setPosts([]);
+          setMessage(data.message || "Failed to get posts");
+          setLoading(false);
+
+          setTimeout(() => {
+            setMessage("");
+          }, 3000);
         }
       })
       .catch((error) => {
         console.error("Error getting posts:", error);
+
+        setMessage("Unable to connect to server");
+        setLoading(false);
+        setTimeout(() => {
+          setMessage("");
+        }, 3000);
       });
   }, [navigate]);
 
   // CREATE POST
   const handleCreatePost = async () => {
+    if (!title || !content) {
+      setMessage("Please fill in title and content");
+
+      const showMessage = (text) => {
+        setMessage(text);
+
+        setTimeout(() => {
+          setMessage("");
+        }, 3000);
+      };
+
+      return;
+    }
+    setSubmitting(true);
     const token = localStorage.getItem("token");
 
-    const response = await fetch(
-      "http://localhost:2000/api/posts",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title,
-          content,
-        }),
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "https://fullstack-blogpost-backend.onrender.com/api/posts",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title,
+            content,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setMessage(data.message || "Failed to create post");
+
+        setTimeout(() => {
+          setMessage("");
+        }, 3000);
+
+        return;
       }
-    );
 
-    const data = await response.json();
-
-    console.log("CREATE POST:", data);
-
-    if (response.ok) {
       setPosts((previousPosts) => [
         ...previousPosts,
         data.post,
@@ -79,58 +129,126 @@ function Posts() {
 
       setTitle("");
       setContent("");
+
+      showMessage("Post created successfully");
+    } catch (error) {
+      console.error("Create post error:", error);
+
+      setMessage("Unable to connect to server");
+
+      setTimeout(() => {
+        setMessage("");
+      }, 3000);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   // DELETE POST
   const handleDeletePost = async (id) => {
+    setDeletingId(id);
+
     const token = localStorage.getItem("token");
 
-    const response = await fetch(
-      `http://localhost:2000/api/posts/${id}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    try {
+      const response = await fetch(
+        `https://fullstack-blogpost-backend.onrender.com/api/posts/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setMessage(data.message || "Failed to delete post");
+
+        const showMessage = (text) => {
+          setMessage(text);
+
+          setTimeout(() => {
+            setMessage("");
+          }, 3000);
+        };
+        return;
       }
-    );
 
-    const data = await response.json();
-
-    console.log("DELETE POST:", data);
-
-    if (response.ok) {
       setPosts((previousPosts) =>
         previousPosts.filter((post) => post._id !== id)
       );
+
+      setMessage("Post deleted successfully");
+
+      setTimeout(() => {
+        setMessage("");
+      }, 3000);
+    } catch (error) {
+      console.error("Delete post error:", error);
+
+      showMessage("Post created successfully");
+
+    } finally {
+      setDeletingId(null);
     }
+
   };
 
   // UPDATE POST
   const handleUpdatePost = async (id) => {
+    if (!title || !content) {
+      const showMessage = (text) => {
+        setMessage(text);
+
+        setTimeout(() => {
+          setMessage("");
+        }, 3000);
+      };
+
+      return;
+    }
+    setSubmitting(true);
+
     const token = localStorage.getItem("token");
 
-    const response = await fetch(
-      `http://localhost:2000/api/posts/${id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title,
-          content,
-        }),
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    try {
+      const response = await fetch(
+        `http://localhost:2000/api/posts/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title,
+            content,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setMessage(data.message || "Failed to update post");
+
+        setTimeout(() => {
+          setMessage("");
+        }, 3000);
+
+        return;
       }
-    );
 
-    const data = await response.json();
-
-    console.log("UPDATE POST:", data);
-
-    if (response.ok) {
       setPosts((previousPosts) =>
         previousPosts.map((post) =>
           post._id === id ? data.post : post
@@ -140,6 +258,19 @@ function Posts() {
       setTitle("");
       setContent("");
       setEditingId(null);
+
+      showMessage("Post created successfully");
+
+    } catch (error) {
+      console.error("Update post error:", error);
+
+      setMessage("Unable to connect to server");
+
+      setTimeout(() => {
+        setMessage("");
+      }, 3000);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -162,6 +293,7 @@ function Posts() {
           <h2>
             {editingId ? "Edit Post" : "Create Post"}
           </h2>
+          {message && <p>{message}</p>}
 
           <input
             type="text"
@@ -185,41 +317,51 @@ function Posts() {
                 handleCreatePost();
               }
             }}
+            disabled={submitting}
           >
-            {editingId ? "Update Post" : "Create Post"}
+            {submitting
+              ? "Saving..."
+              : editingId
+                ? "Update Post"
+                : "Create Post"}
           </button>
         </div>
 
         <div className="posts-list">
           <h2>My Posts</h2>
 
-          {posts.map((post) => (
-            <div className="post" key={post._id}>
-              <h3>{post.title}</h3>
+          {loading ? (
+            <p>Loading posts...</p>
+          ) : posts.length === 0 ? (
+            <p>You don't have any posts yet.</p>
+          ) : (
+            posts.map((post) => (
+              <div className="post" key={post._id}>
+                <h3>{post.title}</h3>
 
-              <p>{post.content}</p>
+                <p>{post.content}</p>
 
-              <button
-                className="edit-button"
-                onClick={() => {
-                  setTitle(post.title);
-                  setContent(post.content);
-                  setEditingId(post._id);
-                }}
-              >
-                Edit
-              </button>
+                <button
+                  className="edit-button"
+                  onClick={() => {
+                    setTitle(post.title);
+                    setContent(post.content);
+                    setEditingId(post._id);
+                  }}
+                >
+                  Edit
+                </button>
 
-              <button
-                className="delete-button"
-                onClick={() =>
-                  handleDeletePost(post._id)
-                }
-              >
-                Delete
-              </button>
-            </div>
-          ))}
+                <button
+                  className="delete-button"
+                  onClick={() => handleDeletePost(post._id)}
+                  disabled={deletingId === post._id}
+                >
+                  {deletingId === post._id ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            ))
+          )}
         </div>
 
       </div>
