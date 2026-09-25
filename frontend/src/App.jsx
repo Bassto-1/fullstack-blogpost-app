@@ -2,8 +2,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 
-import Register from "./pages/RegisterTemp";
-import Login from "./pages/LoginTemp";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
 import Posts from "./pages/Posts";
 
 
