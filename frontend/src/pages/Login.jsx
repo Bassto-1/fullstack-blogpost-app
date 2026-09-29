@@ -27,7 +27,7 @@ function Login() {
 
     try {
       const response = await fetch(
-        "http://localhost:2000/api/auth/login",
+        "https://fullstack-blogpost-backend.onrender.com/api/auth/login",
         {
           method: "POST",
           headers: {

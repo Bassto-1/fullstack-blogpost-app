@@ -30,7 +30,7 @@ function Posts() {
       return;
     }
 
-    fetch("http://localhost:2000/api/posts", {
+    fetch("https://fullstack-blogpost-backend.onrender.com/api/posts", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -96,7 +96,7 @@ function Posts() {
 
     try {
       const response = await fetch(
-        "http://localhost:2000/api/posts",
+        "https://fullstack-blogpost-backend.onrender.com/api/posts",
         {
           method: "POST",
           headers: {
@@ -156,7 +156,7 @@ function Posts() {
     }
     try {
       const response = await fetch(
-        `http://localhost:2000/api/posts/${id}`,
+        `https://fullstack-blogpost-backend.onrender.com/api/posts/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -223,7 +223,7 @@ function Posts() {
     }
     try {
       const response = await fetch(
-        `http://localhost:2000/api/posts/${id}`,
+        `https://fullstack-blogpost-backend.onrender.com/api/posts/${id}`,
         {
           method: "PUT",
           headers: {
