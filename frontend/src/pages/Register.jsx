@@ -27,7 +27,7 @@ function Register() {
 
     try {
       const response = await fetch(
-        "https://fullstack-blogpost-backend.onrender.com/api/auth/register",
+        "http://localhost:2000/api/auth/register",
         {
           method: "POST",
           headers: {

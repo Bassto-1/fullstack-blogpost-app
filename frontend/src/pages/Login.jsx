@@ -11,9 +11,8 @@ function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-
-    setLoading(true);
-
+    console.log("EMAIL:", email);
+    console.log("PASSWORD:", password);
     if (!email || !password) {
       setMessage("Please enter email and password");
 
@@ -24,9 +23,11 @@ function Login() {
       return;
     }
 
+    setLoading(true);
+
     try {
       const response = await fetch(
-        "https://fullstack-blogpost-backend.onrender.com/api/auth/login",
+        "http://localhost:2000/api/auth/login",
         {
           method: "POST",
           headers: {
@@ -47,6 +48,7 @@ function Login() {
         setTimeout(() => {
           setMessage("");
         }, 3000);
+
         return;
       }
 
@@ -56,6 +58,7 @@ function Login() {
         setTimeout(() => {
           setMessage("");
         }, 3000);
+
         return;
       }
 

@@ -96,7 +96,7 @@ function Posts() {
 
     try {
       const response = await fetch(
-        "https://fullstack-blogpost-backend.onrender.com/api/posts",
+        "http://localhost:2000/api/posts",
         {
           method: "POST",
           headers: {
@@ -156,7 +156,7 @@ function Posts() {
     }
     try {
       const response = await fetch(
-        `https://fullstack-blogpost-backend.onrender.com/api/posts/${id}`,
+        `http://localhost:2000/api/posts/${id}`,
         {
           method: "DELETE",
           headers: {
