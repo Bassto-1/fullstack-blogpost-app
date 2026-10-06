@@ -25,6 +25,7 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
+
 router.get("/", auth, async (req, res) => {
   try {
     const posts = await Post.find({
@@ -42,6 +43,26 @@ router.get("/", auth, async (req, res) => {
     });
   }
 });
+
+
+
+
+router.get("/public", async (req, res) => {
+  try {
+    const posts = await Post.find();
+
+    res.json({
+      posts,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get posts",
+      error: error.message,
+    });
+  }
+});
+
+
 
 router.get("/:id", auth, async (req, res) => {
   try {
@@ -133,6 +154,7 @@ module.exports = router;
 //POST      /api/posts      - create a post
 //GET       /api/posts      - get your posts
 
+//GET       /api/posts/public       - Get all posts
 //GET:id    /api/posts/:id   - read one
 //PUT       /api/posts/:id   - update
 //DELETE    /api/posts/:id   - delete
