@@ -33,9 +33,14 @@ function Home() {
                         </p>
                     </div>
                 </Link>
-
-
             ))}
+
+            <nav>
+                <Link to="/login">Login</Link>
+                {" | "}
+                <Link to="/register">Register</Link>
+            </nav>
+
         </div>
     );
 
