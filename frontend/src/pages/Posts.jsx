@@ -1,9 +1,9 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Posts() {
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const [posts, setPosts] = useState([]);
   const [title, setTitle] = useState("");
@@ -13,6 +13,11 @@ function Posts() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+
+  const showMessage = (text) => {
+    setMessage(text);
+    setTimeout(() => setMessage(""), 3000);
+  };
 
   // LOGOUT
   const handleLogout = () => {
@@ -24,23 +29,18 @@ function Posts() {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    // If there is no token, go to login
     if (!token) {
       navigate("/login");
       return;
     }
 
-    fetch("https://fullstack-blogpost-backend.onrender.com/api/posts", {
-      method: "GET",
+    fetch(`${API_URL}/api/posts`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-      .then((response) =>
-        response.json().then((data) => ({ response, data }))
-      )
-      .then(({ response, data }) => {
-        console.log("POSTS:", data);
+      .then(async (response) => {
+        const data = await response.json();
 
         if (response.status === 401) {
           localStorage.removeItem("token");
@@ -48,45 +48,26 @@ function Posts() {
           return;
         }
 
-        if (response.ok) {
-          setPosts(data.posts);
-          setLoading(false);
-        } else {
-          setMessage(data.message || "Failed to get posts");
-          setLoading(false);
-
-          setTimeout(() => {
-            setMessage("");
-          }, 3000);
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to get posts");
         }
+
+        setPosts(data.posts);
       })
       .catch((error) => {
         console.error("Error getting posts:", error);
-
-        setMessage("Unable to connect to server");
-        setLoading(false);
-        setTimeout(() => {
-          setMessage("");
-        }, 3000);
-      });
-  }, [navigate]);
+        showMessage(error.message || "Unable to connect to server");
+      })
+      .finally(() => setLoading(false));
+  }, [API_URL, navigate]);
 
   // CREATE POST
   const handleCreatePost = async () => {
-    if (!title || !content) {
-      setMessage("Please fill in title and content");
-
-      const showMessage = (text) => {
-        setMessage(text);
-
-        setTimeout(() => {
-          setMessage("");
-        }, 3000);
-      };
-
+    if (!title.trim() || !content.trim()) {
+      showMessage("Please fill in title and content");
       return;
     }
-    setSubmitting(true);
+
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -94,51 +75,31 @@ function Posts() {
       return;
     }
 
+    setSubmitting(true);
+
     try {
-      const response = await fetch(
-        "https://fullstack-blogpost-backend.onrender.com/api/posts",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            title,
-            content,
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/posts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ title, content }),
+      });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setMessage(data.message || "Failed to create post");
-
-        setTimeout(() => {
-          setMessage("");
-        }, 3000);
-
-        return;
+        throw new Error(data.message || "Failed to create post");
       }
 
-      setPosts((previousPosts) => [
-        ...previousPosts,
-        data.post,
-      ]);
-
+      setPosts((previousPosts) => [...previousPosts, data.post]);
       setTitle("");
       setContent("");
-
       showMessage("Post created successfully");
     } catch (error) {
       console.error("Create post error:", error);
-
-      setMessage("Unable to connect to server");
-
-      setTimeout(() => {
-        setMessage("");
-      }, 3000);
+      showMessage(error.message || "Unable to connect to server");
     } finally {
       setSubmitting(false);
     }
@@ -146,74 +107,48 @@ function Posts() {
 
   // DELETE POST
   const handleDeletePost = async (id) => {
-    setDeletingId(id);
-
     const token = localStorage.getItem("token");
 
     if (!token) {
       navigate("/login");
       return;
     }
+
+    setDeletingId(id);
+
     try {
-      const response = await fetch(
-        `https://fullstack-blogpost-backend.onrender.com/api/posts/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/api/posts/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setMessage(data.message || "Failed to delete post");
-
-        const showMessage = (text) => {
-          setMessage(text);
-
-          setTimeout(() => {
-            setMessage("");
-          }, 3000);
-        };
-        return;
+        throw new Error(data.message || "Failed to delete post");
       }
 
       setPosts((previousPosts) =>
         previousPosts.filter((post) => post._id !== id)
       );
 
-      setMessage("Post deleted successfully");
-
-      setTimeout(() => {
-        setMessage("");
-      }, 3000);
+      showMessage("Post deleted successfully");
     } catch (error) {
       console.error("Delete post error:", error);
-
-      showMessage("Post created successfully");
-
+      showMessage(error.message || "Unable to connect to server");
     } finally {
       setDeletingId(null);
     }
-
   };
 
   // UPDATE POST
   const handleUpdatePost = async (id) => {
-    if (!title || !content) {
-      const showMessage = (text) => {
-        setMessage(text);
-
-        setTimeout(() => {
-          setMessage("");
-        }, 3000);
-      };
-
+    if (!title.trim() || !content.trim()) {
+      showMessage("Please fill in title and content");
       return;
     }
-    setSubmitting(true);
 
     const token = localStorage.getItem("token");
 
@@ -221,32 +156,23 @@ function Posts() {
       navigate("/login");
       return;
     }
+
+    setSubmitting(true);
+
     try {
-      const response = await fetch(
-        `https://fullstack-blogpost-backend.onrender.com/api/posts/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            title,
-            content,
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/posts/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ title, content }),
+      });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setMessage(data.message || "Failed to update post");
-
-        setTimeout(() => {
-          setMessage("");
-        }, 3000);
-
-        return;
+        throw new Error(data.message || "Failed to update post");
       }
 
       setPosts((previousPosts) =>
@@ -258,17 +184,10 @@ function Posts() {
       setTitle("");
       setContent("");
       setEditingId(null);
-
-      showMessage("Post created successfully");
-
+      showMessage("Post updated successfully");
     } catch (error) {
       console.error("Update post error:", error);
-
-      setMessage("Unable to connect to server");
-
-      setTimeout(() => {
-        setMessage("");
-      }, 3000);
+      showMessage(error.message || "Unable to connect to server");
     } finally {
       setSubmitting(false);
     }
@@ -277,22 +196,16 @@ function Posts() {
   return (
     <div className="posts-page">
       <div className="posts-container">
-
         <div className="posts-header">
           <h1>My Blog</h1>
-
-          <button
-            className="logout-button"
-            onClick={handleLogout}
-          >
+          <button className="logout-button" onClick={handleLogout}>
             Logout
           </button>
         </div>
 
         <div className="form-box">
-          <h2>
-            {editingId ? "Edit Post" : "Create Post"}
-          </h2>
+          <h2>{editingId ? "Edit Post" : "Create Post"}</h2>
+
           {message && <p>{message}</p>}
 
           <input
@@ -306,17 +219,15 @@ function Posts() {
             placeholder="Post content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-          ></textarea>
+          />
 
           <button
             className="create-button"
-            onClick={() => {
-              if (editingId) {
-                handleUpdatePost(editingId);
-              } else {
-                handleCreatePost();
-              }
-            }}
+            onClick={() =>
+              editingId
+                ? handleUpdatePost(editingId)
+                : handleCreatePost()
+            }
             disabled={submitting}
           >
             {submitting
@@ -338,7 +249,6 @@ function Posts() {
             posts.map((post) => (
               <div className="post" key={post._id}>
                 <h3>{post.title}</h3>
-
                 <p>{post.content}</p>
 
                 <button
@@ -363,7 +273,6 @@ function Posts() {
             ))
           )}
         </div>
-
       </div>
     </div>
   );

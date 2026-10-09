@@ -11,8 +11,7 @@ function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    console.log("EMAIL:", email);
-    console.log("PASSWORD:", password);
+
     if (!email || !password) {
       setMessage("Please enter email and password");
 
