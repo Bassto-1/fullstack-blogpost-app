@@ -25,7 +25,6 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-
 router.get("/", auth, async (req, res) => {
   try {
     const posts = await Post.find({
@@ -44,9 +43,6 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-
-
-
 router.get("/public", async (req, res) => {
   try {
     const posts = await Post.find();
@@ -62,7 +58,27 @@ router.get("/public", async (req, res) => {
   }
 });
 
+router.get("/public/:id", async (req, res) => {
+  try {
+    const post = await Post.findById(
+      req.params.id);
 
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found",
+      });
+    }
+
+    res.json({
+      post,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get post",
+      error: error.message,
+    });
+  }
+});
 
 router.get("/:id", auth, async (req, res) => {
   try {
