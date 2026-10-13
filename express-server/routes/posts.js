@@ -140,10 +140,17 @@ router.put("/:id", auth, async (req, res) => {
 
 router.delete("/:id", auth, async (req, res) => {
   try {
-    const post = await Post.findOneAndDelete({
-      _id: req.params.id,
-      user: req.userId,
-    });
+    let post;
+
+    if (req.userRole === "admin") {
+      // Admin can delete any post
+      post = await Post.findByIdAndDelete(req.params.id);
+    } else {
+      post = await Post.findOneAndDelete({
+        _id: req.params.id,
+        user: req.userId,
+      });
+    }
 
     if (!post) {
       return res.status(404).json({
