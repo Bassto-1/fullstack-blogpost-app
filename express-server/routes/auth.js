@@ -1,3 +1,4 @@
+const auth = require("../middleware/auth");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User")
@@ -96,6 +97,34 @@ router.post("/login", async (req, res) => {
     res.status(500).json({
       message: "Server error",
       error: error.message,
+    });
+  }
+});
+
+// GET CURRENT USER
+router.get("/me", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select(
+      "name email role"
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get user",
     });
   }
 });

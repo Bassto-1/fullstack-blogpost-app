@@ -63,7 +63,7 @@ function Login() {
 
       localStorage.setItem("token", data.token);
 
-      navigate(location.state?.from || "/posts", {
+      navigate(location.state?.from || "/", {
         replace: true
       });
     } catch (error) {
