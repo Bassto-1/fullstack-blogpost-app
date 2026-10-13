@@ -7,10 +7,11 @@ function Home() {
     const [isLoggedIn, setIsLoggedIn] = useState(
         Boolean(localStorage.getItem("token"))
     );
+    const [isAdmin, setIsAdmin] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetch(`${API_URL}/api/posts/public`)
+        fetch(`${API_URL} /api/posts / public`)
             .then((response) => response.json())
             .then((data) => {
                 setPosts(data.posts || []);
@@ -20,19 +21,85 @@ function Home() {
             });
     }, [API_URL]);
 
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            setIsLoggedIn(false);
+            setIsAdmin(false);
+            return;
+        }
+
+        fetch(`${API_URL} /api/auth / me`, {
+            headers: {
+                Authorization: `Bearer ${token} `,
+            },
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Unable to verify user");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                setIsLoggedIn(true);
+                setIsAdmin(data.user?.role === "admin");
+            })
+            .catch((error) => {
+                console.error("Error checking user:", error);
+                setIsAdmin(false);
+            });
+    }, [API_URL]);
+
     function handlePostClick(postId) {
         if (isLoggedIn) {
-            navigate(`/posts/${postId}`);
+            navigate(`/ posts / ${postId} `);
         } else {
             navigate("/login", {
-                state: { from: `/posts/${postId}` }
+                state: { from: `/ posts / ${postId} ` },
             });
+        }
+    }
+
+    async function handleDelete(postId) {
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this post?"
+        );
+
+        if (!confirmed) return;
+
+        const token = localStorage.getItem("token");
+
+        try {
+            const response = await fetch(
+                `${API_URL} /api/posts / ${postId} `,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token} `,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to delete post");
+            }
+
+            setPosts((currentPosts) =>
+                currentPosts.filter((post) => post._id !== postId)
+            );
+        } catch (error) {
+            console.error("Delete error:", error);
+            alert(error.message);
         }
     }
 
     function handleLogout() {
         localStorage.removeItem("token");
         setIsLoggedIn(false);
+        setIsAdmin(false);
         navigate("/");
     }
 
@@ -73,6 +140,17 @@ function Home() {
                         </p>
 
                         {!isLoggedIn && <p>Log in to read more</p>}
+
+                        {isAdmin && (
+                            <button
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleDelete(post._id);
+                                }}
+                            >
+                                Delete Post
+                            </button>
+                        )}
                     </div>
                 ))}
             </div>
