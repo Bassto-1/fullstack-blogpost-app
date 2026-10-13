@@ -1,13 +1,13 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const location = useLocation();
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -63,7 +63,9 @@ function Login() {
 
       localStorage.setItem("token", data.token);
 
-      navigate("/posts");
+      navigate(location.state?.from || "/posts", {
+        replace: true
+      });
     } catch (error) {
       console.error("Login error:", error);
 

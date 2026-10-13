@@ -8,10 +8,16 @@ function PostDetails() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        fetch(`${API_URL}/api/posts/public/${id}`)
+        const token = localStorage.getItem("token");
+
+        fetch(`${API_URL}/api/posts/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
             .then((response) => {
                 if (!response.ok) {
-                    throw new Error("Post not found");
+                    throw new Error("Failed to load post");
                 }
                 return response.json();
             })
@@ -22,7 +28,7 @@ function PostDetails() {
                 console.error("Error getting post:", error);
                 setError(error.message);
             });
-    }, [id]);
+    }, [API_URL, id]);
 
     if (error) {
         return <p>{error}</p>;
