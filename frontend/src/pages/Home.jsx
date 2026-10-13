@@ -11,7 +11,7 @@ function Home() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetch(`${API_URL} /api/posts / public`)
+        fetch(`${API_URL} /api/posts/public`)
             .then((response) => response.json())
             .then((data) => {
                 setPosts(data.posts || []);
