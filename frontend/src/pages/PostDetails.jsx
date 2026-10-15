@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 function PostDetails() {
     const API_URL = import.meta.env.VITE_API_URL;
     const { id } = useParams();
     const [post, setPost] = useState(null);
     const [error, setError] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -38,8 +39,12 @@ function PostDetails() {
         return <p>Loading post...</p>;
     }
 
+
     return (
-        <div>
+        <div className="post-details">
+            <button onClick={() => navigate("/")}>
+                ← Back to Home
+            </button>
             <h1>{post.title}</h1>
             <p>{post.content}</p>
         </div>

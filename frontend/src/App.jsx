@@ -7,7 +7,8 @@ import Login from "./pages/Login";
 import Posts from "./pages/Posts";
 import Home from "./pages/Home";
 import PostDetails from "./pages/PostDetails";
-
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -18,7 +19,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/posts" element={<Posts />} />
         <Route path="/posts/:id" element={<PostDetails />} />
-      </Routes>
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />}
+        /> </Routes>
     </BrowserRouter>
   );
 }

@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -101,6 +102,7 @@ function Login() {
         <button onClick={handleLogin} disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
+        <Link to="/forgot-password">Forgot password?</Link>
 
         {message && <p>{message}</p>}
 
