@@ -41,12 +41,20 @@ function PostDetails() {
 
 
     return (
-        <div className="post-details">
-            <button onClick={() => navigate("/")}>
-                ← Back to Home
-            </button>
-            <h1>{post.title}</h1>
-            <p>{post.content}</p>
+        <div className="post-details-page">
+            <div className="post-details-container">
+                <button
+                    className="back-home-button"
+                    onClick={() => navigate("/")}
+                >
+                    ← Back to Home
+                </button>
+
+                <article className="post-details-content">
+                    <h1>{post.title}</h1>
+                    <p>{post.content}</p>
+                </article>
+            </div>
         </div>
     );
 }
